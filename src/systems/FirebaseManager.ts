@@ -1,16 +1,31 @@
 import { initializeApp, FirebaseApp } from 'firebase/app';
-import { getAuth, Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as firebaseSignOut, onAuthStateChanged, User } from 'firebase/auth';
-import { getFirestore, Firestore, doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
-import { GameStateManager } from './GameStateManager';
+import {
+    getAuth,
+    Auth,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    signOut as firebaseSignOut,
+    onAuthStateChanged,
+    User
+} from 'firebase/auth';
+import {
+    getFirestore,
+    Firestore,
+    doc,
+    setDoc,
+    getDoc,
+    updateDoc
+} from 'firebase/firestore';
 
-// Placeholder - will be replaced by User's config
+// Real configuration provided by user
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "SENDER_ID",
-    appId: "APP_ID"
+    apiKey: "AIzaSyDOiYo4N7NjePbtM4JquDQvFr2OSCXbc_8",
+    authDomain: "farmfriend-1996k.firebaseapp.com",
+    projectId: "farmfriend-1996k",
+    storageBucket: "farmfriend-1996k.firebasestorage.app",
+    messagingSenderId: "168919057037",
+    appId: "1:168919057037:web:e4b064b1b90f17ff7458c4",
+    measurementId: "G-90KFNRGF2B"
 };
 
 export class FirebaseManager {
@@ -44,6 +59,18 @@ export class FirebaseManager {
 
     public isAuthenticated(): boolean {
         return !!this.currentUser;
+    }
+
+    public async login(email: string, pass: string) {
+        return signInWithEmailAndPassword(this.auth, email, pass);
+    }
+
+    public async register(email: string, pass: string) {
+        return createUserWithEmailAndPassword(this.auth, email, pass);
+    }
+
+    public async logout() {
+        return firebaseSignOut(this.auth);
     }
 
     public getUserEmail(): string {

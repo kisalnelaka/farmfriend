@@ -1,17 +1,20 @@
 import Phaser from 'phaser';
-import { BootScene } from './scenes/BootScene';
-import { MainMenuScene } from './scenes/MainMenuScene';
-import { FarmScene } from './scenes/FarmScene';
-import { ShopScene } from './scenes/ShopScene';
-import { NeighborScene } from './scenes/NeighborScene';
-import { UIPlugin } from './ui/UIPlugin'; // We'll create this later or use standard scene UI
+import { BootScene } from './scenes/BootScene.ts';
+import { LoginScene } from './scenes/LoginScene.ts';
+import { MainMenuScene } from './scenes/MainMenuScene.ts';
+import { FarmScene } from './scenes/FarmScene.ts';
+import { ShopScene } from './scenes/ShopScene.ts';
+import { NeighborScene } from './scenes/NeighborScene.ts';
 
 const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
     parent: 'app',
-    backgroundColor: '#87CEEB', // Sky blue default
+    dom: {
+        createContainer: true
+    },
+    backgroundColor: '#87CEEB',
     scale: {
         mode: Phaser.Scale.RESIZE,
         autoCenter: Phaser.Scale.CENTER_BOTH
@@ -23,6 +26,7 @@ const config: Phaser.Types.Core.GameConfig = {
         }
     },
     scene: [
+        LoginScene,
         BootScene,
         MainMenuScene,
         FarmScene,

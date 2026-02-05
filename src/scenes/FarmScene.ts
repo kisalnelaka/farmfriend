@@ -27,12 +27,12 @@ export class FarmScene extends Phaser.Scene {
     // New UI Elements
     private uiContainer!: Phaser.GameObjects.Container;
     private moneyText!: Phaser.GameObjects.Text;
-    private xpText!: Phaser.GameObjects.Text;
     private levelText!: Phaser.GameObjects.Text;
 
     private actionDock!: Phaser.GameObjects.Container;
     private toolButtons: Map<string, Phaser.GameObjects.Container> = new Map();
     private selectedSeed: string | null = null;
+    private selectedTool: 'cursor' | 'water' | 'seed' | 'bug_spray' | 'weed_spray' = 'cursor';
 
     constructor() {
         super('FarmScene');
@@ -55,10 +55,11 @@ export class FarmScene extends Phaser.Scene {
         this.add.tileSprite(0, 0, width, height, 'grass').setOrigin(0);
 
         // Particle System
-        const graphics = this.make.graphics({ x: 0, y: 0, add: false });
+        const graphics = this.make.graphics({ x: 0, y: 0 });
         graphics.fillStyle(0xffff00, 1);
         graphics.fillCircle(4, 4, 4);
         graphics.generateTexture('star_particle', 8, 8);
+        graphics.destroy();
 
         this.gridOffset = { x: (width - this.gridSize.cols * this.tileSize) / 2, y: (height - this.gridSize.rows * this.tileSize) / 2 };
 
@@ -259,13 +260,13 @@ export class FarmScene extends Phaser.Scene {
 
         // Highlight active tool logic here (scale up active)
         this.toolButtons.forEach((btn, id) => {
-            const circle = btn.list[0] as Phaser.GameObjects.Circle;
+            const circle = btn.list[0] as any; // Cast to any to avoid 'Circle' namespace error
             if (id === tool) {
                 this.tweens.add({ targets: btn, scale: 1.2, duration: 200 });
-                circle.setStrokeStyle(4, 0xffffff);
+                if (circle.setStrokeStyle) circle.setStrokeStyle(4, 0xffffff);
             } else {
                 this.tweens.add({ targets: btn, scale: 1, duration: 200 });
-                circle.setStrokeStyle(0);
+                if (circle.setStrokeStyle) circle.setStrokeStyle(0);
             }
         });
     }
@@ -421,8 +422,6 @@ export class FarmScene extends Phaser.Scene {
             container.add(productIcon);
         }
     }
-
-    private selectedTool: 'cursor' | 'water' | 'seed' = 'cursor';
 
     // [Restoring handleAnimalClick, harvestCrop, showFloatingText, buyAnimal, createControls]
 
@@ -605,39 +604,6 @@ export class FarmScene extends Phaser.Scene {
             });
             this.time.delayedCall(400, () => emitter.destroy());
         }
-    }
-    private harvestCrop(plotData: PlotData) {
-        if (!plotData.cropId) return;
-        const crop = CROPS[plotData.cropId];
-        if (!crop) return;
-
-        // Add to inventory
-        this.storehouseManager.addItem(crop.id, 1);
-
-        // Seed Drop Chance (20%)
-        let drops = `${crop.name}`;
-        if (Math.random() < 0.2) {
-            this.storehouseManager.addItem(crop.id + '_seed', 1);
-            drops += ' + Seed!';
-        }
-
-        // XP
-        this.experienceManager.addXp(crop.xp);
-        this.economyManager.earn(2); // Small coin bonus on harvest
-
-        // Visual
-        this.showFloatingText(this.input.x, this.input.y, `+${drops}`, '#ffff00');
-
-        // Reset plot
-        plotData.state = 'empty';
-        plotData.cropId = null;
-        plotData.isWatered = false;
-        plotData.hasBug = false;
-        plotData.hasWeed = false;
-
-        this.updatePlotVisuals(plotData);
-        this.gameState.saveGame();
-        this.updateHUD(); // Update sidebar/inventory counts
     }
 
     private createSeedBar(bottomY: number) {

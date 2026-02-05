@@ -1,4 +1,6 @@
 import Phaser from 'phaser';
+import { FirebaseManager } from '../systems/FirebaseManager';
+import { GameStateManager } from '../systems/GameStateManager';
 
 export class BootScene extends Phaser.Scene {
     constructor() {
@@ -33,13 +35,25 @@ export class BootScene extends Phaser.Scene {
             progressBar.fillRect(250, 280, 300 * value, 30);
         });
 
-        this.load.on('complete', () => {
+        this.load.on('complete', async () => {
             progressBar.destroy();
             progressBox.destroy();
             loadingText.destroy();
 
             this.createGameAssets();
-            this.scene.start('MainMenuScene');
+
+            const firebase = FirebaseManager.getInstance();
+            if (firebase.isAuthenticated()) {
+                // Try to sync with cloud
+                const cloudState = await firebase.loadGame();
+                if (cloudState) {
+                    const gameState = GameStateManager.getInstance();
+                    gameState.loadFromObject(cloudState);
+                }
+                this.scene.start('MainMenuScene');
+            } else {
+                this.scene.start('LoginScene');
+            }
         });
 
         // Load Grid Sprite Sheet (4x4, assuming 1024x1024 image -> 256x256 frames)
@@ -142,23 +156,26 @@ export class BootScene extends Phaser.Scene {
 
         // Procedural fallbacks checks
         if (!this.textures.exists('grass')) {
-            const g = this.make.graphics({ x: 0, y: 0, add: false });
+            const g = this.make.graphics({ x: 0, y: 0 }); // Removed 'add: false'
             g.fillStyle(0x76c54e); g.fillRect(0, 0, 64, 64);
             g.fillStyle(0x6ab446); g.fillRect(10, 10, 10, 10); g.fillRect(40, 30, 8, 8);
             g.generateTexture('grass', 64, 64);
+            g.destroy();
         }
 
         if (!this.textures.exists('button')) {
-            const g = this.make.graphics({ x: 0, y: 0, add: false });
+            const g = this.make.graphics({ x: 0, y: 0 });
             g.fillStyle(0x4a90e2);
             g.fillRoundedRect(0, 0, 200, 60, 10);
             g.generateTexture('button', 200, 60);
+            g.destroy();
         }
 
         if (!this.textures.exists('crop_mature')) {
-            const g = this.make.graphics({ x: 0, y: 0, add: false });
+            const g = this.make.graphics({ x: 0, y: 0 });
             g.fillStyle(0xff0000); g.fillCircle(32, 32, 20);
             g.generateTexture('crop_mature', 64, 64);
+            g.destroy();
         }
     }
 
@@ -168,8 +185,8 @@ export class BootScene extends Phaser.Scene {
 
             const t = this.textures.createCanvas(key, 64, 64);
             if (t) {
-                const srcFrame = texture.frames[frame];
-                if (srcFrame && srcFrame.source.image) {
+                const srcFrame = texture.get(frame);
+                if (srcFrame && srcFrame.source && srcFrame.source.image) {
                     const sourceImage = srcFrame.source.image as HTMLImageElement;
                     const ctx = t.context;
 
