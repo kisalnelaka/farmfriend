@@ -14,7 +14,12 @@ import {
     doc,
     setDoc,
     getDoc,
-    updateDoc
+    updateDoc,
+    collection,
+    query,
+    where,
+    getDocs,
+    limit
 } from 'firebase/firestore';
 
 // Real configuration provided by user
@@ -119,5 +124,59 @@ export class FirebaseManager {
             console.error('Load Failed', e);
         }
         return null;
+    }
+
+    public getCurrentUser() {
+        return this.currentUser;
+    }
+
+    // --- Social / Friends ---
+
+    public async findUserByEmail(email: string): Promise<{ uid: string, email: string } | null> {
+        try {
+            // In a production app, you might want a separate 'users' collection with indexed emails
+            // For now, we search the 'users' collection
+            const q = query(collection(this.db, 'users'), where('email', '==', email), limit(1));
+            const querySnapshot = await getDocs(q);
+            if (!querySnapshot.empty) {
+                const userDoc = querySnapshot.docs[0];
+                return { uid: userDoc.id, email: userDoc.data().email };
+            }
+        } catch (e) {
+            console.error('Find User Failed', e);
+        }
+        return null;
+    }
+
+    public async addFriend(friendUid: string, friendEmail: string): Promise<void> {
+        if (!this.currentUser) return;
+        try {
+            const myFriendsRef = doc(this.db, 'users', this.currentUser.uid, 'friends', friendUid);
+            await setDoc(myFriendsRef, {
+                email: friendEmail,
+                addedAt: Date.now()
+            });
+
+            // Bi-directional friend (auto-accept for simplicity in this version)
+            const theirFriendsRef = doc(this.db, 'users', friendUid, 'friends', this.currentUser.uid);
+            await setDoc(theirFriendsRef, {
+                email: this.currentUser.email,
+                addedAt: Date.now()
+            });
+        } catch (e) {
+            console.error('Add Friend Failed', e);
+        }
+    }
+
+    public async getFriends(): Promise<any[]> {
+        if (!this.currentUser) return [];
+        try {
+            const friendsCol = collection(this.db, 'users', this.currentUser.uid, 'friends');
+            const snapshot = await getDocs(friendsCol);
+            return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        } catch (e) {
+            console.error('Get Friends Failed', e);
+            return [];
+        }
     }
 }

@@ -149,27 +149,28 @@ export class FarmScene extends Phaser.Scene {
         });
     }
 
+    private updateHUD() {
+        if (this.moneyText) this.moneyText.setText(`$${this.gameState.player.coins}`);
+        if (this.levelText) this.levelText.setText(`Lvl ${this.gameState.player.level}`);
+    }
+
     private createHUD() {
         const width = this.scale.width;
-        const height = 80; // Top Bar Height
+        const height = 80;
 
         this.uiContainer = this.add.container(0, 0);
 
-        // Dashboard Background
         const bg = this.add.rectangle(0, 0, width, height, GameTheme.colors.panel).setOrigin(0);
         const shadow = this.add.rectangle(0, height, width, 5, 0x000000, 0.1).setOrigin(0);
 
-        // Logo / Title
         const title = this.add.text(20, 25, 'Farm Friend', {
             fontSize: '28px',
             color: GameTheme.colors.primary.toString(16).replace('0x', '#'),
             fontStyle: 'bold'
         });
 
-        // Stats Container (Right aligned)
-        const statsX = width - 350;
+        const statsX = width - 450;
 
-        // Coins
         const coinBg = this.add.rectangle(statsX, 40, 100, 40, 0xfff3e0).setStrokeStyle(2, GameTheme.colors.secondary);
         this.moneyText = this.add.text(statsX, 40, '0', {
             fontSize: '20px',
@@ -177,31 +178,30 @@ export class FarmScene extends Phaser.Scene {
             fontStyle: 'bold'
         }).setOrigin(0.5);
 
-        // Level / XP
-        const lvlBg = this.add.rectangle(statsX + 120, 40, 100, 40, 0xe3f2fd).setStrokeStyle(2, GameTheme.colors.info);
-        this.levelText = this.add.text(statsX + 120, 40, 'Lvl 1', {
+        const lvlBg = this.add.rectangle(statsX + 110, 40, 100, 40, 0xe3f2fd).setStrokeStyle(2, GameTheme.colors.info);
+        this.levelText = this.add.text(statsX + 110, 40, 'Lvl 1', {
             fontSize: '20px',
             color: '#2196f3',
             fontStyle: 'bold'
         }).setOrigin(0.5);
 
-        // Neighbors Button
-        const friendBtn = this.add.container(width - 100, 40);
+        // Add Neighbor Button
+        const addFriendBtn = this.add.container(width - 240, 40);
+        const afBg = this.add.rectangle(0, 0, 140, 40, 0x2196f3).setStrokeStyle(2, 0xffffff);
+        const afText = this.add.text(0, 0, '+ Neighbor', { fontSize: '18px', color: '#ffffff', fontStyle: 'bold' }).setOrigin(0.5);
+        addFriendBtn.add([afBg, afText]);
+        addFriendBtn.setSize(140, 40).setInteractive({ useHandCursor: true });
+        addFriendBtn.on('pointerdown', () => this.showAddFriendUI());
+
+        // Neighbors List Button
+        const friendBtn = this.add.container(width - 90, 40);
         const fBg = this.add.rectangle(0, 0, 140, 40, GameTheme.colors.primary).setStrokeStyle(2, 0xffffff);
-        const fText = this.add.text(0, 0, 'Neighbors', { fontSize: '18px', color: '#ffffff', fontStyle: 'bold' }).setOrigin(0.5);
+        const fText = this.add.text(0, 0, 'List', { fontSize: '18px', color: '#ffffff', fontStyle: 'bold' }).setOrigin(0.5);
         friendBtn.add([fBg, fText]);
         friendBtn.setSize(140, 40).setInteractive({ useHandCursor: true });
+        friendBtn.on('pointerdown', () => this.scene.start('NeighborScene'));
 
-        friendBtn.on('pointerdown', () => {
-            this.scene.start('NeighborScene');
-        });
-
-        this.uiContainer.add([bg, shadow, title, coinBg, this.moneyText, lvlBg, this.levelText, friendBtn]);
-    }
-
-    private updateHUD() {
-        if (this.moneyText) this.moneyText.setText(`$${this.gameState.player.coins}`);
-        if (this.levelText) this.levelText.setText(`Lvl ${this.gameState.player.level}`);
+        this.uiContainer.add([bg, shadow, title, coinBg, this.moneyText, lvlBg, this.levelText, addFriendBtn, friendBtn]);
     }
 
     private createActionDock() {
@@ -327,17 +327,14 @@ export class FarmScene extends Phaser.Scene {
             }
         }
 
-        if (plotData.state === 'growing' || plotData.state === 'ready') {
+        if (plotData.state === 'growing' || (plotData.state as any) === 'ready') {
             const cropId = plotData.cropId;
             if (cropId) {
-                // Determine texture key
-                let texture = 'crop_stage_1';
-                if (plotData.state === 'ready') {
-                    // Try to match specific crop texture if it exists
-                    // e.g. crop_turnip, crop_carrot
-                    // If not found, fallback to crop_mature or just tint crop_turnip?
-                    // We generated textures for 'crop_turnip', 'crop_carrot', 'crop_potato'
-                    texture = `crop_${cropId}`;
+                let texture = `crop_${cropId}`;
+                if ((plotData.state as any) === 'ready') {
+                    // Mature specific texture
+                } else {
+                    texture = 'crop_stage_1';
                 }
 
                 // Check if texture exists, else fallback
@@ -698,7 +695,6 @@ export class FarmScene extends Phaser.Scene {
     }
 
     private doPlant(plotData: PlotData, cropId: string) {
-        const cropConfig = CROPS[cropId];
         plotData.cropId = cropId;
         plotData.state = 'growing';
         plotData.plantTime = Date.now();
@@ -710,5 +706,65 @@ export class FarmScene extends Phaser.Scene {
         // Visual
         this.showFloatingText(this.input.x, this.input.y, 'Planted!', '#ffffff');
         this.updateHUD();
+    }
+
+    private showAddFriendUI() {
+        const { width, height } = this.scale;
+        const firebase = FirebaseManager.getInstance();
+
+        const overlay = this.add.dom(width / 2, height / 2).createFromCache('addFriendUI');
+
+        const emailInput = overlay.getChildByID('friend-email') as HTMLInputElement;
+        const searchBtn = overlay.getChildByID('search-btn') as HTMLButtonElement;
+        const cancelBtn = overlay.getChildByID('cancel-btn') as HTMLButtonElement;
+        const errorMsg = overlay.getChildByID('error-msg') as HTMLParagraphElement;
+        const resultDiv = overlay.getChildByID('search-result') as HTMLDivElement;
+        const resultName = overlay.getChildByID('result-name') as HTMLParagraphElement;
+        const addBtn = overlay.getChildByID('add-btn') as HTMLButtonElement;
+
+        let foundUser: any = null;
+
+        searchBtn.onclick = async () => {
+            const email = emailInput.value.trim();
+            if (!email) return;
+
+            errorMsg.style.display = 'none';
+            resultDiv.style.display = 'none';
+
+            try {
+                searchBtn.disabled = true;
+                const user = await firebase.findUserByEmail(email);
+                searchBtn.disabled = false;
+
+                if (user) {
+                    foundUser = user;
+                    resultName.innerText = `User Found: ${user.email}`;
+                    resultDiv.style.display = 'block';
+                } else {
+                    errorMsg.innerText = 'User not found';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (e) {
+                searchBtn.disabled = false;
+                errorMsg.innerText = 'Search failed';
+                errorMsg.style.display = 'block';
+            }
+        };
+
+        addBtn.onclick = async () => {
+            if (!foundUser) return;
+            try {
+                addBtn.disabled = true;
+                await firebase.addFriend(foundUser.uid, foundUser.email);
+                this.showFloatingText(width / 2, height / 2, 'Neighbor Added!', '#00ff00');
+                overlay.destroy();
+            } catch (e) {
+                addBtn.disabled = false;
+                errorMsg.innerText = 'Failed to add neighbor';
+                errorMsg.style.display = 'block';
+            }
+        };
+
+        cancelBtn.onclick = () => overlay.destroy();
     }
 }

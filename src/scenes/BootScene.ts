@@ -35,6 +35,9 @@ export class BootScene extends Phaser.Scene {
             progressBar.fillRect(250, 280, 300 * value, 30);
         });
 
+        this.load.html('loginForm', 'assets/ui/login.html');
+        this.load.html('addFriendUI', 'assets/ui/add_friend.html');
+
         this.load.on('complete', async () => {
             progressBar.destroy();
             progressBox.destroy();

@@ -5,6 +5,7 @@ import { MainMenuScene } from './scenes/MainMenuScene.ts';
 import { FarmScene } from './scenes/FarmScene.ts';
 import { ShopScene } from './scenes/ShopScene.ts';
 import { NeighborScene } from './scenes/NeighborScene.ts';
+import { AccountScene } from './scenes/AccountScene.ts';
 
 const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
@@ -31,7 +32,8 @@ const config: Phaser.Types.Core.GameConfig = {
         MainMenuScene,
         FarmScene,
         ShopScene,
-        NeighborScene
+        NeighborScene,
+        AccountScene
     ],
     // We can add plugins here later if needed
 };

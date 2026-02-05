@@ -53,6 +53,17 @@ export class MainMenuScene extends Phaser.Scene {
             this.scene.start('FarmScene');
         });
 
+        // Account Button
+        const accountBtn = this.add.container(width / 2, height / 2 + 80);
+        const accBg = this.add.rectangle(0, 0, 200, 60, 0x4caf50).setStrokeStyle(2, 0xffffff);
+        const accText = this.add.text(0, 0, 'ACCOUNT', { fontSize: '24px', color: '#ffffff', fontStyle: 'bold' }).setOrigin(0.5);
+        accountBtn.add([accBg, accText]);
+        accountBtn.setSize(200, 60).setInteractive({ useHandCursor: true });
+
+        accountBtn.on('pointerdown', () => {
+            this.scene.launch('AccountScene');
+        });
+
         // Simple tween for title
         this.tweens.add({
             targets: title,
