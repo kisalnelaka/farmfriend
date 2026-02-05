@@ -14,17 +14,32 @@ export class LoginScene extends Phaser.Scene {
         const { width, height } = this.scale;
 
         // Background
-        this.add.rectangle(0, 0, width, height, 0x81c784).setOrigin(0);
-        this.add.text(width / 2, height / 2 - 200, 'Welcome to Farm Friend', {
-            fontSize: '48px',
+        this.add.image(width / 2, height / 2, 'grass').setDisplaySize(width, height).setAlpha(0.6);
+
+        // Add some farm-themed floating elements
+        for (let i = 0; i < 15; i++) {
+            const x = Math.random() * width;
+            const y = Math.random() * height;
+            this.add.image(x, y, 'star_particle').setAlpha(0.2).setScale(Math.random() * 2);
+        }
+
+        this.add.text(width / 2, height / 2 - 220, 'FARM FRIEND', {
+            fontSize: '64px',
             color: '#ffffff',
             fontStyle: 'bold',
             stroke: '#2e7d32',
-            strokeThickness: 6
+            strokeThickness: 10,
+            shadow: { offsetX: 2, offsetY: 2, color: '#000', blur: 10, fill: true }
+        }).setOrigin(0.5);
+
+        this.add.text(width / 2, height / 2 - 160, 'The Original Farm Management Game', {
+            fontSize: '20px',
+            color: '#e8f5e9',
+            fontStyle: 'italic'
         }).setOrigin(0.5);
 
         // Form
-        const element = this.add.dom(width / 2, height / 2).createFromCache('loginForm');
+        const element = this.add.dom(width / 2, height / 2 + 50).createFromCache('loginForm');
 
         const loginBtn = element.getChildByID('login-btn') as HTMLButtonElement;
         const registerBtn = element.getChildByID('register-btn') as HTMLButtonElement;

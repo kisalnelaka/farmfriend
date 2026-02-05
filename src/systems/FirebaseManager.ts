@@ -34,19 +34,28 @@ export class FirebaseManager {
     private auth: Auth;
     private db: Firestore;
     private currentUser: User | null = null;
+    private authReady: Promise<void>;
 
     private constructor() {
         this.app = initializeApp(firebaseConfig);
         this.auth = getAuth(this.app);
         this.db = getFirestore(this.app);
 
-        onAuthStateChanged(this.auth, (user) => {
-            this.currentUser = user;
-            if (user) {
-                console.log('User signed in:', user.email);
-            } else {
-                console.log('User signed out');
-            }
+        this.authReady = new Promise((resolve) => {
+            const unsubscribe = onAuthStateChanged(this.auth, (user) => {
+                this.currentUser = user;
+                if (user) {
+                    console.log('User signed in:', user.email);
+                } else {
+                    console.log('User signed out');
+                }
+                resolve();
+                unsubscribe(); // Only wait for the first check
+            });
+            // Also listen continuously for state changes
+            onAuthStateChanged(this.auth, (user) => {
+                this.currentUser = user;
+            });
         });
     }
 
@@ -55,6 +64,10 @@ export class FirebaseManager {
             FirebaseManager.instance = new FirebaseManager();
         }
         return FirebaseManager.instance;
+    }
+
+    public async waitForAuth(): Promise<void> {
+        return this.authReady;
     }
 
     public isAuthenticated(): boolean {

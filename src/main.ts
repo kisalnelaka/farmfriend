@@ -26,8 +26,8 @@ const config: Phaser.Types.Core.GameConfig = {
         }
     },
     scene: [
-        LoginScene,
         BootScene,
+        LoginScene,
         MainMenuScene,
         FarmScene,
         ShopScene,

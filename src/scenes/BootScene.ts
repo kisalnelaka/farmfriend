@@ -43,6 +43,8 @@ export class BootScene extends Phaser.Scene {
             this.createGameAssets();
 
             const firebase = FirebaseManager.getInstance();
+            await firebase.waitForAuth();
+
             if (firebase.isAuthenticated()) {
                 // Try to sync with cloud
                 const cloudState = await firebase.loadGame();
