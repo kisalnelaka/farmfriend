@@ -1,32 +1,21 @@
-# 🚜 FARM FRIEND (The Ultimate Farm-y Thing)
+# farm friend
 
-YO! Welcome to Farm Friend! It’s a game about... wait, did I see a squirrel? 🐿️ ANYWAY... it’s a farming game! You plant things, you sell things, you become a billionaire (in carrots). 
+this is a farming game i am working on. it is not finished and there are definitely bugs everywhere so dont be surprised if something breaks. just refresh if it does.
 
-### 🥬 HOW DO I EVEN PLAY THIS??
-Okay, listen up because I might forget what I’m saying halfway through:
-1. **PLANT STUFF**: Click the dirt. Put seeds in. Watch them grow. It's like magic but slower.
-2. **WATER STUFF**: Plants get thirsty. If they turn brown, you messed up. Give them water! 💧
-3. **HARVEST**: When they look big and tasty, click them! FREE MONEY! 💰
-4. **SHOP**: Go to the shop and buy better seeds. Or animals! Animals are cool. I want a goat. 🐐
-5. **NEIGHBORS**: You can literally go to your friend's farm and see what they're doing. You can even help them! (Or just judge their layout, I won't tell). 
+anyway here is how you play it if you care.
 
-### ✨ COOL FEATURES (I think)
-- **Logins!**: You can actually save your farm! It's in the cloud! Like a literal cloud! ☁️
-- **Neighbors**: Add your friends by email. It's like a social network but for digital farmers.
-- **Account Page**: Check your stats. See how much of a pro you are.
-- **Live Online**: It's on the internet. Wow. Science.
+how to play
+you have a farm. you click the dirt to plant seeds. you have to water them or they will die which is annoying. once they grow you click them to get money. use the money to buy better stuff in the shop. there are also animals but i dont remember if they do much yet. 
 
-### ⚠️ THE "OH NO" SECTION (DISCLAIMER)
-**READ THIS PART!!!** 
-Wait, what was I saying? Oh yeah. This game is **NOT DONE**. It's super unfinished. Like, half-baked cookies. 🍪
-- There are **BUGS**. Big ones. Small ones. Maybe even digital spiders. 🕷️
-- Sometimes things might just... stop? If that happens, just refresh the page and pray.
-- I'm still adding stuff whenever I remember to. Don't expect a masterpiece yet!
+online stuff
+you have to make an account to save your farm. it saves to the cloud so you can play on different computers. you can also add friends by their email address and go look at their farms. you can even help them or steal their crops if they are ready but dont tell them i said that.
 
-### 🛠️ STUFF FOR NERDS (How to run it)
-If you're a coder person:
-- `npm install` (gets the stuff)
-- `npm run dev` (makes it go)
-- `npm run build` (makes it ready for the internet)
+disclaimer
+like i said it is not finished. there are bugs. some buttons might not work right. i am just adding things as I think of them. 
 
-Okay, I'm gonna go get a snack now. Have fun farming!! 🌽🌽🌽
+technical stuff for nerds
+npm install to get the things it needs.
+npm run dev to run it on your own computer.
+npm run build if you want to put it on a website.
+
+okay that is all for now because i got distracted by something else. bye.
