@@ -6,9 +6,10 @@ export default defineConfig({
         assetsDir: 'assets',
         outDir: 'dist',
         emptyOutDir: true,
+        chunkSizeWarningLimit: 2000,
     },
     server: {
-        host: true, // Listen on all local IPs
+        host: true,
         port: 8080
     }
 });
